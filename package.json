@@ -1,0 +1,28 @@
+{
+  "name": "ai-document-analyzer",
+  "version": "1.0.0",
+  "description": "Production-ready, low-cost AI document analyzer on AWS using Bedrock, Lambda, DynamoDB, S3, and API Gateway",
+  "bin": {
+    "ai-document-analyzer": "bin/app.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "cdk": "cdk",
+    "synth": "cdk synth",
+    "deploy": "cdk deploy",
+    "destroy": "cdk destroy",
+    "frontend": "python run_frontend.py"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "aws-cdk": "^2.170.0",
+    "ts-node": "^10.9.2",
+    "typescript": "~5.3.3"
+  },
+  "dependencies": {
+    "aws-cdk-lib": "^2.273.0",
+    "constructs": "^10.3.0",
+    "dotenv": "^16.4.5"
+  }
+}

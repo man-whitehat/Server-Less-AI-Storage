@@ -1,0 +1,27 @@
+# Node & CDK
+node_modules/
+cdk.out/
+dist/
+*.js
+*.d.ts
+!jest.config.js
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+.pytest_cache/
+.coverage
+
+# Environment & Credentials
+.env
+*.pem
+
+# IDE & OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

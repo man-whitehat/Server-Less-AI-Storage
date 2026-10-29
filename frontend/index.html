@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#08111f">
+  <meta name="description" content="DocParser is a secure AWS-powered document intelligence workspace.">
+  <title>DocParser | AWS Document Intelligence</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Product typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['IBM Plex Sans', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
+          },
+          colors: {
+            zinc: {
+              750: '#202023',
+              850: '#141416',
+              925: '#0c0c0e',
+              950: '#09090b',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-zinc-950 text-zinc-100 min-h-screen flex flex-col font-sans antialiased selection:bg-zinc-800 selection:text-zinc-100">
+
+  <!-- Top Navigation Bar -->
+  <header class="border-b border-zinc-800/80 bg-zinc-950/90 backdrop-blur-md sticky top-0 z-40">
+    <div class="max-w-[1600px] mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
+      
+      <!-- Brand & Breadcrumb -->
+      <div class="flex items-center space-x-3">
+        <div class="flex items-center space-x-2.5">
+          <div class="brand-mark w-7 h-7 rounded-md bg-zinc-100 text-zinc-950 flex items-center justify-center font-bold text-xs tracking-wider shadow-sm">
+            <i data-lucide="scan-text" class="w-4 h-4"></i>
+          </div>
+          <span class="font-semibold text-sm tracking-tight text-zinc-100">DocParser</span>
+        </div>
+        <span class="text-zinc-700">/</span>
+        <div class="flex items-center space-x-2 text-xs text-zinc-400">
+          <span class="px-2 py-0.5 rounded bg-zinc-900 border border-zinc-800 font-mono text-[11px] text-zinc-300">AWS · us-east-1</span>
+          <span class="text-zinc-500 font-mono text-[11px]">nova-micro</span>
+        </div>
+      </div>
+
+      <!-- System Health, Telemetry & Controls -->
+      <div class="flex items-center space-x-3">
+        
+        <!-- Live Connection Status Pill -->
+        <div id="statusBadge" class="flex items-center space-x-2 px-2.5 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-[11px] font-mono">
+          <span id="statusDot" class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+          <span id="statusText" class="text-zinc-400">Connecting</span>
+          <span id="statusPing" class="text-zinc-600 border-l border-zinc-800 pl-2">--</span>
+        </div>
+
+        <!-- Sample Loaders Dropdown / Quick Buttons -->
+        <div class="hidden md:flex items-center space-x-1.5 pl-2 border-l border-zinc-800">
+          <button id="btnSampleContract" class="px-2.5 py-1 rounded-md text-xs text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900 transition flex items-center gap-1.5 border border-transparent hover:border-zinc-800">
+            <i data-lucide="file-text" class="w-3.5 h-3.5 text-zinc-400"></i>
+            <span>Sample Agreement</span>
+          </button>
+          <button id="btnSampleReport" class="px-2.5 py-1 rounded-md text-xs text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900 transition flex items-center gap-1.5 border border-transparent hover:border-zinc-800">
+            <i data-lucide="file-chart-column" class="w-3.5 h-3.5 text-zinc-400"></i>
+            <span>Sample Report</span>
+          </button>
+        </div>
+
+        <!-- API Config Modal Toggle -->
+        <button id="btnHome" title="Go to homepage" class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs text-zinc-400 hover:text-zinc-100 hover:bg-zinc-900 border border-transparent hover:border-zinc-800 transition">
+          <i data-lucide="home" class="w-3.5 h-3.5"></i>
+          Home
+        </button>
+        <button id="btnOpenWorkspace" title="Open workspace" class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs text-zinc-900 bg-zinc-100 hover:bg-white transition">
+          Workspace
+          <i data-lucide="arrow-up-right" class="w-3.5 h-3.5"></i>
+        </button>
+        <button id="btnSettings" title="API Configuration" class="p-1.5 rounded-md text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900 border border-transparent hover:border-zinc-800 transition">
+          <i data-lucide="sliders-horizontal" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Settings Drawer / Modal -->
+  <div id="settingsModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-zinc-900 border border-zinc-800 rounded-xl max-w-md w-full p-6 shadow-2xl">
+      <div class="flex items-center justify-between pb-3 border-b border-zinc-800 mb-4">
+        <h3 class="text-sm font-semibold text-zinc-200 flex items-center gap-2">
+          <i data-lucide="settings" class="w-4 h-4 text-zinc-400"></i>
+          Backend API Gateway Configuration
+        </h3>
+        <button id="btnCloseSettings" class="text-zinc-400 hover:text-zinc-200">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+      <p class="text-xs text-zinc-400 mb-4 leading-relaxed">
+        The application queries this HTTP API endpoint for presigned S3 upload URLs and DynamoDB extraction results.
+      </p>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs font-medium text-zinc-300 mb-1.5">API Gateway URL</label>
+          <input type="text" id="inputApiUrl" class="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-xs font-mono text-zinc-200 focus:outline-none focus:border-zinc-600 transition" placeholder="https://xxxxxxxxxx.execute-api.us-east-1.amazonaws.com">
+        </div>
+        <div class="flex items-center justify-between pt-2">
+          <button id="btnResetEndpoint" class="text-xs text-zinc-400 hover:text-zinc-200 hover:underline">Reset to Default</button>
+          <button id="btnSaveSettings" class="px-3.5 py-1.5 text-xs font-medium bg-zinc-100 hover:bg-white text-zinc-900 rounded-lg transition">Save Endpoint</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Public Homepage -->
+  <section id="homepage" class="homepage-shell">
+    <div class="homepage-inner">
+      <div class="homepage-kicker">
+        <span class="homepage-kicker-line"></span>
+        <span>Document intelligence, kept simple</span>
+      </div>
+
+      <div class="homepage-hero">
+        <div class="homepage-copy">
+          <p class="homepage-eyebrow">AWS-native document workspace</p>
+          <h1>Turn every document<br><em>into a clear next step.</em></h1>
+          <p class="homepage-lede">
+            Upload contracts, reports, and operational files. DocParser extracts the signal,
+            organizes the details, and gives your team a dependable place to act.
+          </p>
+          <div class="homepage-actions">
+            <button id="btnHomepageWorkspace" class="homepage-primary">
+              Open the workspace
+              <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </button>
+            <span class="homepage-action-note">Secure upload · Structured output</span>
+          </div>
+        </div>
+
+        <div class="homepage-preview" aria-label="Document analysis preview">
+          <div class="preview-topline">
+            <span class="preview-file">
+              <i data-lucide="file-text" class="w-4 h-4"></i>
+              quarterly_report.pdf
+            </span>
+            <span class="preview-status"><span></span> Analyzed</span>
+          </div>
+          <div class="preview-rule"></div>
+          <p class="preview-label">Executive summary</p>
+          <p class="preview-summary">Revenue grew 18.5% year over year, while operating margin expanded to 14.2%.</p>
+          <div class="preview-rule"></div>
+          <div class="preview-detail-row">
+            <span>Action items</span>
+            <strong>03</strong>
+          </div>
+          <div class="preview-detail-row">
+            <span>Key entities</span>
+            <strong>08</strong>
+          </div>
+          <div class="preview-detail-row">
+            <span>Processing time</span>
+            <strong>1.8s</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="homepage-footer">
+        <div>
+          <span class="homepage-footer-index">01</span>
+          <span>Upload once</span>
+        </div>
+        <div>
+          <span class="homepage-footer-index">02</span>
+          <span>Extract automatically</span>
+        </div>
+        <div>
+          <span class="homepage-footer-index">03</span>
+          <span>Move with confidence</span>
+        </div>
+        <span class="homepage-footer-tech">Powered by AWS · Built for focused teams</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Workspace Container -->
+  <main id="workspaceShell" class="hidden flex-1 max-w-[1600px] w-full mx-auto px-4 sm:px-6 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+    <!-- Left Rail: Analysis Archive & File Intake (4 cols) -->
+    <div class="lg:col-span-4 flex flex-col space-y-5">
+
+      <!-- Upload Zone Card -->
+      <div class="bg-zinc-900/60 border border-zinc-800/80 rounded-xl p-4 shadow-sm">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-xs font-semibold tracking-wide uppercase text-zinc-400">File Ingestion</span>
+          <span class="text-[11px] font-mono text-zinc-500">PDF, TXT, JSON, MD</span>
+        </div>
+
+        <div id="dropZone" class="group relative border border-dashed border-zinc-700/80 hover:border-zinc-500 rounded-lg p-6 text-center cursor-pointer transition-colors bg-zinc-950/40 hover:bg-zinc-900/40">
+          <input type="file" id="fileInput" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept=".pdf,.txt,.json,.csv,.md,.log">
+          <div class="flex flex-col items-center justify-center space-y-2 pointer-events-none">
+            <div class="w-9 h-9 rounded-md bg-zinc-800/80 border border-zinc-700/60 flex items-center justify-center text-zinc-400 group-hover:text-zinc-200 transition">
+              <i data-lucide="upload" class="w-4 h-4"></i>
+            </div>
+            <div class="text-xs font-medium text-zinc-300">
+              Drop file here, or <span class="text-zinc-100 underline decoration-zinc-600 underline-offset-2">browse</span>
+            </div>
+            <p class="text-[11px] text-zinc-500">
+              Direct upload to S3 • Auto-purged upon extraction
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pipeline Telemetry Card (Active during processing) -->
+      <div id="pipelineTracker" class="bg-zinc-900/80 border border-zinc-800 rounded-xl p-4 shadow-sm hidden">
+        <div class="flex items-center justify-between pb-2.5 mb-3 border-b border-zinc-800/80 text-xs">
+          <span class="font-medium text-zinc-300 flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-sky-400 animate-pulse"></span>
+            Serverless Pipeline Execution
+          </span>
+          <span id="pipelineTimer" class="font-mono text-zinc-400 text-[11px]">0.0s</span>
+        </div>
+
+        <div class="space-y-2.5 text-xs font-mono">
+          <div id="stepUrl" class="flex items-center gap-2.5 text-zinc-500">
+            <span class="step-icon w-4 h-4 rounded-full bg-zinc-800 flex items-center justify-center text-[10px] shrink-0">1</span>
+            <span class="truncate">Generate Presigned S3 Token</span>
+          </div>
+          <div id="stepUpload" class="flex items-center gap-2.5 text-zinc-500">
+            <span class="step-icon w-4 h-4 rounded-full bg-zinc-800 flex items-center justify-center text-[10px] shrink-0">2</span>
+            <span class="truncate">Direct Client Stream to S3</span>
+          </div>
+          <div id="stepBedrock" class="flex items-center gap-2.5 text-zinc-500">
+            <span class="step-icon w-4 h-4 rounded-full bg-zinc-800 flex items-center justify-center text-[10px] shrink-0">3</span>
+            <span class="truncate">Bedrock Nova Micro Extraction</span>
+          </div>
+          <div id="stepStorage" class="flex items-center gap-2.5 text-zinc-500">
+            <span class="step-icon w-4 h-4 rounded-full bg-zinc-800 flex items-center justify-center text-[10px] shrink-0">4</span>
+            <span class="truncate">Index DynamoDB & Purge Raw S3</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- History / Document Feed -->
+      <div class="bg-zinc-900/60 border border-zinc-800/80 rounded-xl p-4 flex-1 flex flex-col shadow-sm">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center space-x-2">
+            <span class="text-xs font-semibold tracking-wide uppercase text-zinc-400">Processed Archive</span>
+            <span id="historyCountBadge" class="text-[10px] font-mono bg-zinc-800 text-zinc-400 px-1.5 py-0.2 rounded">0</span>
+          </div>
+          <button id="btnRefreshHistory" title="Reload from DynamoDB" class="text-zinc-500 hover:text-zinc-300 p-1 rounded hover:bg-zinc-800 transition">
+            <i data-lucide="rotate-cw" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+
+        <!-- Filter Search Box -->
+        <div class="relative mb-3">
+          <i data-lucide="search" class="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-zinc-500"></i>
+          <input type="text" id="inputHistorySearch" placeholder="Filter archive by name or tag..." class="w-full bg-zinc-950 border border-zinc-800 rounded-md pl-8 pr-3 py-1.5 text-xs text-zinc-300 placeholder-zinc-600 focus:outline-none focus:border-zinc-700 font-sans">
+        </div>
+
+        <!-- Document List -->
+        <div id="historyList" class="flex-1 overflow-y-auto space-y-1.5 pr-1 max-h-[460px] custom-scrollbar">
+          <div class="text-center py-10 text-xs text-zinc-500">
+            Loading archive records...
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Right Stage: Intelligence Dossier (8 cols) -->
+    <div class="lg:col-span-8 flex flex-col">
+      <div id="inspectorCard" class="bg-zinc-900/60 border border-zinc-800/80 rounded-xl shadow-sm flex-1 flex flex-col overflow-hidden min-h-[580px]">
+
+        <!-- Empty State (No file selected) -->
+        <div id="emptyInspectorState" class="flex-1 flex flex-col items-center justify-center p-12 text-center">
+          <div class="w-12 h-12 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center mb-4 text-zinc-500 shadow-inner">
+            <i data-lucide="file-search" class="w-6 h-6"></i>
+          </div>
+          <h3 class="text-sm font-semibold text-zinc-200 mb-1">No Document Selected</h3>
+          <p class="text-xs text-zinc-500 max-w-sm mb-6 leading-relaxed">
+            Upload a document from the left rail or select an entry from the processed archive to inspect structured intelligence.
+          </p>
+          <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-zinc-900 border border-zinc-800/80 text-[11px] font-mono text-zinc-400">
+            <span>Try quick sample:</span>
+            <button id="btnEmptySampleContract" class="text-zinc-200 hover:underline">Sample Agreement</button>
+            <span class="text-zinc-700">•</span>
+            <button id="btnEmptySampleReport" class="text-zinc-200 hover:underline">Financial Report</button>
+          </div>
+        </div>
+
+        <!-- Active Document Dossier View -->
+        <div id="activeInspectorState" class="flex-1 flex flex-col hidden">
+          
+          <!-- Document Header Bar -->
+          <div class="px-6 py-4 border-b border-zinc-800/80 bg-zinc-950/40 flex flex-wrap items-center justify-between gap-3">
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center gap-2.5">
+                <h2 id="docFilename" class="text-sm font-semibold text-zinc-100 truncate">document.txt</h2>
+                <span id="docClassificationBadge" class="px-2 py-0.5 rounded text-[10px] font-mono font-medium uppercase tracking-wider bg-zinc-800 text-zinc-300 border border-zinc-700">
+                  DOCUMENT
+                </span>
+              </div>
+              <div class="flex items-center gap-2 text-[11px] text-zinc-500 font-mono mt-1">
+                <span id="docId" class="truncate">ID: --</span>
+                <span>•</span>
+                <span id="docTimestamp">--</span>
+              </div>
+            </div>
+
+            <!-- Toolbar Actions -->
+            <div class="flex items-center space-x-2">
+              <div class="bg-zinc-950 p-0.5 rounded-lg border border-zinc-800 flex items-center space-x-0.5">
+                <button id="tabVisual" class="px-2.5 py-1 rounded text-xs font-medium text-zinc-200 bg-zinc-800 transition">Dossier</button>
+                <button id="tabRawJson" class="px-2.5 py-1 rounded text-xs font-medium text-zinc-400 hover:text-zinc-200 transition">JSON</button>
+              </div>
+
+              <button id="btnCopyJson" title="Copy raw JSON" class="p-1.5 rounded-md text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 border border-zinc-800/80 transition">
+                <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Tab 1: Visual Dossier Content -->
+          <div id="contentVisual" class="flex-1 p-6 space-y-6 overflow-y-auto max-h-[calc(100vh-14rem)] custom-scrollbar">
+
+            <!-- Executive Briefing Memo -->
+            <div class="space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-[11px] font-mono font-semibold uppercase tracking-wider text-zinc-400">Executive Summary</span>
+                <button id="btnCopySummary" class="text-[11px] text-zinc-500 hover:text-zinc-300 flex items-center gap-1 transition">
+                  <i data-lucide="copy" class="w-3 h-3"></i>
+                  <span>Copy</span>
+                </button>
+              </div>
+              <div class="p-4 rounded-lg bg-zinc-950/60 border border-zinc-800/80 border-l-2 border-l-zinc-300">
+                <p id="summaryText" class="text-xs text-zinc-300 leading-relaxed font-sans">
+                  Summary text...
+                </p>
+              </div>
+            </div>
+
+            <!-- Action Items Checklist -->
+            <div class="space-y-2.5">
+              <div class="flex items-center justify-between">
+                <span class="text-[11px] font-mono font-semibold uppercase tracking-wider text-zinc-400">Action Items & Deliverables</span>
+                <span id="actionItemCount" class="text-[11px] font-mono text-zinc-500">0 Items</span>
+              </div>
+              <div id="actionItemsList" class="space-y-1.5">
+                <!-- Dynamically injected -->
+              </div>
+            </div>
+
+            <!-- Extracted Named Entities -->
+            <div class="space-y-2.5">
+              <div class="flex items-center justify-between">
+                <span class="text-[11px] font-mono font-semibold uppercase tracking-wider text-zinc-400">Key Entities & Context</span>
+                <span id="entityCount" class="text-[11px] font-mono text-zinc-500">0 Entities</span>
+              </div>
+              <div id="entitiesGrid" class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                <!-- Dynamically injected -->
+              </div>
+            </div>
+
+            <!-- Telemetry & Compliance Strip -->
+            <div class="pt-4 border-t border-zinc-800/80 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs font-mono">
+              <div class="p-2.5 rounded-lg bg-zinc-950/40 border border-zinc-800/60">
+                <span class="block text-[10px] text-zinc-500 uppercase">AI Model</span>
+                <span id="metricModel" class="text-zinc-300 font-medium truncate block">Nova Micro</span>
+              </div>
+              <div class="p-2.5 rounded-lg bg-zinc-950/40 border border-zinc-800/60">
+                <span class="block text-[10px] text-zinc-500 uppercase">S3 Raw Source</span>
+                <span class="text-emerald-400 font-medium flex items-center gap-1">
+                  <i data-lucide="check" class="w-3 h-3"></i> Auto-Purged
+                </span>
+              </div>
+              <div class="p-2.5 rounded-lg bg-zinc-950/40 border border-zinc-800/60">
+                <span class="block text-[10px] text-zinc-500 uppercase">Database Mode</span>
+                <span class="text-zinc-300 font-medium">On-Demand</span>
+              </div>
+              <div class="p-2.5 rounded-lg bg-zinc-950/40 border border-zinc-800/60">
+                <span class="block text-[10px] text-zinc-500 uppercase">Estimated Run Cost</span>
+                <span class="text-zinc-300 font-medium">&lt; $0.0001</span>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Tab 2: Raw JSON View -->
+          <div id="contentRawJson" class="flex-1 p-5 overflow-y-auto max-h-[calc(100vh-14rem)] custom-scrollbar hidden">
+            <pre id="rawJsonPre" class="bg-zinc-950 border border-zinc-800/80 rounded-lg p-4 font-mono text-[11px] text-zinc-300 overflow-x-auto leading-relaxed"></pre>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Clean Floating Toast Container -->
+  <div id="toastContainer" class="fixed bottom-5 right-5 space-y-2 z-50 pointer-events-none"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

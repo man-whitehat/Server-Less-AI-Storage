@@ -1,0 +1,12 @@
+Sprint Planning Meeting - Data Engineering Team
+Date: October 18, 2026
+Attendees: Alex Rivera (Tech Lead), Priya Sharma (DevOps), David Chen (Cloud Architect)
+
+Discussion Summary:
+Discussed migration from expensive LLM foundational models to Amazon Nova Micro and Claude 3 Haiku to optimize operational expenditure. Nova Micro benchmarked 90% cheaper with sub-500ms latency.
+
+Action Items:
+1. Alex to switch default Bedrock model ID in CDK configuration to amazon.nova-micro-v1:0 by Monday.
+2. Priya to configure AWS Budget alarms for $10/month and verify SNS/Email subscriptions.
+3. David to verify S3 lifecycle rules auto-purge raw uploads after 24 hours.
+4. Team to conduct end-to-end stress test with 500 documents on staging before production cutoff on October 28.

@@ -1,0 +1,21 @@
+MASTER SERVICES AGREEMENT
+Effective Date: October 15, 2026
+Between: Apex Cloud Systems LLC ("Provider") and Meridian Healthcare Inc. ("Client")
+
+1. Scope of Work
+Provider agrees to deliver a serverless data ingestion pipeline and HIPAA-compliant archival storage on AWS.
+
+2. Financial Terms
+- Fixed Engineering Fee: $45,000 USD payable across three milestones.
+- Ongoing Monthly Managed Support: $3,200 USD/month.
+- Payment Terms: Net 30 days upon invoice receipt.
+
+3. Key Obligations & Next Steps
+- Client (Meridian Healthcare) must provide IAM cross-account role access by October 25, 2026.
+- Provider (Apex Cloud) will deliver the Architecture Design Document (ADD) by November 02, 2026.
+- Mutual review of Disaster Recovery RTO/RPO metrics scheduled for November 10, 2026.
+- Final acceptance testing to be completed by December 15, 2026.
+
+Signatures:
+Apex Cloud Systems LLC: Marcus Vance, VP Engineering
+Meridian Healthcare Inc.: Sarah Jenkins, Chief Information Officer

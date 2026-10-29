@@ -1,0 +1,9 @@
+{
+  "AiDocumentAnalyzerStack": {
+    "ProcessedInsightsBucketName": "aidocumentanalyzerstack-processedinsightsbucket678-lxximudpimfa",
+    "ApiEndpoint": "https://9gwdnjzix1.execute-api.us-east-1.amazonaws.com",
+    "RawUploadsBucketName": "aidocumentanalyzerstack-rawuploadsbucket0630969e-ttyyim9xmwpl",
+    "DocumentInsightsTableName": "AiDocumentAnalyzerStack-DocumentInsightsTable4FDF97F5-1AC7NZX8AY897",
+    "ActiveBedrockModel": "us.amazon.nova-micro-v1:0"
+  }
+}
